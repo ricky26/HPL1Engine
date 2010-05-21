@@ -20,11 +20,12 @@
 #define HPL_INPUT_H
 
 #include <map>
-#include <list>
+#include <vector>
 
 #include "system/SystemTypes.h"
 #include "game/Updateable.h"
 #include "input/InputTypes.h"
+#include "input/Action.h"
 
 namespace hpl {
 
@@ -32,20 +33,13 @@ namespace hpl {
 	class iMouse;
 	class iLowLevelInput;
 	class iInputDevice;
-	class iAction;
 
-	typedef std::map<tString, iAction*> tActionMap;
-	typedef tActionMap::iterator tActionMapIt;
-
-	typedef std::multimap<tString, iAction*> tActionMultiMap;
-	typedef tActionMultiMap::iterator tActionMultiMapIt;
-
-	typedef std::list<iInputDevice*> tInputDeviceList;
+	typedef std::vector<iInputDevice*> tInputDeviceList;
 	typedef tInputDeviceList::iterator tInputDeviceListIt;
 
 	class cInput : public iUpdateable
 	{
-	public: 
+	public:
 		cInput(iLowLevelInput *apLowLevelInput);
         ~cInput();
 		
@@ -55,62 +49,26 @@ namespace hpl {
 		void Update(float afTimeStep);
 		
 		/**
-		 * Add a new action.
-		 * \param *apAction The action to add.
-		 */
-		void AddAction(iAction *apAction);
-
-		/**
-		 * Check if an action is triggered.
-		 * \param asName 
-		 * \return 
-		 */
-		bool IsTriggerd(tString asName);
-		/**
-		 *
-		 * \param asName name of the action.
-		 * \return 
-		 */
-		bool WasTriggerd(tString asName);
-
-		/**
-		 *
-		 * \param asName name of the action.
-		 * \return 
-		 */
-		bool BecameTriggerd(tString asName);
-
-		/**
-		*
-		* \param asName name of the action.
-		* \return 
-		*/
-		bool DoubleTriggerd(tString asName, float afLimit);
-        
-		/**
 		 *
 		 * \return currently used keyboard
 		 */
-		iKeyboard * GetKeyboard();
+		iKeyboard *GetKeyboard();
 
 		/**
 		*
 		* \return currently used mouse
 		*/
-		iMouse * GetMouse();
+		iMouse *GetMouse();
 
 		/**
-		* Get action from map.
-		* \param asName name of action.
-		* \return Pointer to action, if not found NULL.
-		*/
-		iAction* GetAction(tString asName);
-
-		/**
-		 * Destroys an action if it exists.
-		 * \param asName 
+		 * \return the device by that name, or NULL if not found.
 		 */
-		void DestroyAction(tString asName);
+		iInputDevice *FindDevice(tString _name);
+
+		/**
+		 * \return the group that contains all configurable actions.
+		 */
+		cActionGroup *GetActionGroup();
 
 		/**
 		 * Checks if any input is given.
@@ -119,19 +77,28 @@ namespace hpl {
 		bool CheckForInput();
 
 		/**
-		 * Creates an action from the latest input made. Any action with the same name is destroyed.
-		 * \param &asName Name of action be be created.
-		 * \return NULL if no input was given.
+		 * Attempt to assign a currently active control to
+		 * the supplied action.
 		 */
-		iAction* InputToAction(const tString &asName);
+		bool AssignControl(cAction *);
+
+		/**
+		 * Load an input configuration from a file.
+		 * \returns whether the operation was a success.
+		 */
+		bool LoadLayout(tWString _path);
+
+		/**
+		 * Save an input configuration to a file.
+		 * \returns whether the operation was a success.
+		 */
+		bool SaveLayout(tWString _path);
 
 		iLowLevelInput* GetLowLevel(){ return mpLowLevelInput;}
 
 	private:
-		
-
-		tActionMap m_mapActions;
 		tInputDeviceList mlstInputDevices;
+		cActionGroup mRootActionGroup;
 
 		iLowLevelInput *mpLowLevelInput;
 		

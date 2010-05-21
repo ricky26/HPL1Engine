@@ -29,7 +29,7 @@ namespace hpl
 
 	//-----------------------------------------------------------------------
 
-	cActionHaptic::cActionHaptic(tString asName,cHaptic *apHaptic, int alButton) : iAction(asName)
+	cActionHaptic::cActionHaptic(tString asName,cHaptic *apHaptic, int alButton) : cAction(asName)
 	{
 		mlButton = alButton;	
 		mpHaptic = apHaptic;

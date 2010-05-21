@@ -16,37 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with HPL1 Engine.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef HPL_ACTIONKEYBOARD_H
-#define HPL_ACTIONKEYBOARD_H
 
+#include "input/InputMovement.h"
 
-#include "input/InputTypes.h"
-#include "input/Action.h"
-
-namespace hpl {
-	
-	class cInput;
-
-	class cActionKeyboard : public cAction
+namespace hpl
+{
+	bool iInputMovement::IsTriggered()
 	{
-	public:
-		cActionKeyboard(tString asName,cInput* apInput, int aKey);
+		return TriggeredDistance() != 0;
+	}
 
-		bool IsTriggerd();
-		float GetValue();
-
-		tString GetInputName();
-
-		tString GetInputType(){return "Keyboard";}
-
-		eKey GetKey(){ return mKey;}
-		eKeyModifier GetModifier(){ return mMod;}
-
-	private:
-		eKey mKey;
-		eKeyModifier mMod;
-		cInput *mpInput;
-	};
-
+	void iInputMovement::TriggerDistance(float _mv)
+	{
+		// TODO: deal with cDistanceAction. : P -- Ricky26
+	}
 };
-#endif // HPL_ACTIONKEYBOARD_H

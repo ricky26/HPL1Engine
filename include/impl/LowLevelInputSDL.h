@@ -20,6 +20,7 @@
 #define HPL_LOWLEVELINPUT_SDL_H
 
 #include <list>
+#include <vector>
 #include "input/LowLevelInput.h"
 
 #include "SDL/SDL.h"
@@ -31,6 +32,11 @@ namespace hpl {
 	class cLowLevelInputSDL : public iLowLevelInput
 	{
 	public:
+		typedef std::list<SDL_Event> tEventList;
+		typedef std::vector<iInputDevice*> tDeviceList;
+
+		static const int defaultDeviceCapacity = 16; // This means 14 'other' devices. (eg: joysticks) -- Ricky26
+
 		cLowLevelInputSDL(iLowLevelGraphics *apLowLevelGraphics);
 		~cLowLevelInputSDL();
 
@@ -39,13 +45,22 @@ namespace hpl {
 		void BeginInputUpdate();
 		void EndInputUpdate();
 
-		iMouse* CreateMouse();
-		iKeyboard* CreateKeyboard();
+		iMouse* GetMouse();
+		iKeyboard* GetKeyboard();
+
+		// More input devices! -- Ricky26
+		tCount DeviceCount();
+		iInputDevice *GetDevice(tCount);
+
 	public:
-		std::list<SDL_Event> mlstEvents;
+		tEventList mlstEvents;
 
 	private: 
 		iLowLevelGraphics *mpLowLevelGraphics;
+		iMouse *mpMouse;
+		iKeyboard *mpKeyboard;
+		tDeviceList mDevices;
+		
 	};
 };
 #endif // HPL_LOWLEVELINPUT_SDL_H

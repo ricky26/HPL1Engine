@@ -31,14 +31,13 @@ namespace hpl {
 
 	//-----------------------------------------------------------------------
 
-	cMouseSDL::cMouseSDL(cLowLevelInputSDL *apLowLevelInputSDL,iLowLevelGraphics *apLowLevelGraphics) : iMouse("SDL Portable Mouse")
+	cMouseSDL::cMouseSDL(cLowLevelInputSDL *apLowLevelInputSDL,iLowLevelGraphics *apLowLevelGraphics) : iMouse("Mouse")
 	{
 		mfMaxPercent = 0.7f;
 		mfMinPercent = 0.1f;
 		mlBufferSize = 6;
 
-		mvMButtonArray.resize(eMButton_LastEnum);
-		mvMButtonArray.assign(mvMButtonArray.size(),false);
+		mButtonCache = 0;
 
 		mpLowLevelInputSDL = apLowLevelInputSDL;
 		mpLowLevelGraphics = apLowLevelGraphics;
@@ -62,77 +61,59 @@ namespace hpl {
 	{
 		cVector2f vScreenSize = mpLowLevelGraphics->GetScreenSize();
 		cVector2f vVirtualSize = mpLowLevelGraphics->GetVirtualSize();
-		
-		//mvMouseRelPos = cVector2f(0,0);
-
-		//Log("Input start\n");
-		mbWheelUpMoved = false;
-		mbWheelDownMoved = false;
 
 		std::list<SDL_Event>::iterator it = mpLowLevelInputSDL->mlstEvents.begin();
 		for(; it != mpLowLevelInputSDL->mlstEvents.end(); ++it)
 		{
 			SDL_Event *pEvent = &(*it);
-
-			if(	pEvent->type != SDL_MOUSEMOTION && 
-				pEvent->type != SDL_MOUSEBUTTONDOWN &&
-				pEvent->type != SDL_MOUSEBUTTONUP)
+			bool mouseDown = false;
+			switch(pEvent->type)
 			{
-				continue;
-			}
-
-			if(pEvent->type == SDL_MOUSEMOTION)
-			{
-				mvMouseAbsPos = cVector2f((float)pEvent->motion.x,(float)pEvent->motion.y);
-				mvMouseAbsPos = (mvMouseAbsPos/vScreenSize)*vVirtualSize;
-
-				Uint8 buttonState = pEvent->motion.state;
-
-				//Set button here as well just to be sure
-				/*if(buttonState & SDL_BUTTON(1)) mvMButtonArray[eMButton_Left] = true;
-				if(buttonState & SDL_BUTTON(2)) mvMButtonArray[eMButton_Middle] = true;
-				if(buttonState & SDL_BUTTON(3)) mvMButtonArray[eMButton_Right] = true;*/
-			}
-			else
-			{
-				bool bButtonIsDown = pEvent->type==SDL_MOUSEBUTTONDOWN;
-
-				//if(pEvent->button.button == SDL_BUTTON_WHEELUP)Log(" Wheel %d!\n",bButtonIsDown);
-
-				switch(pEvent->button.button)
+			case SDL_MOUSEMOTION:
 				{
-					case SDL_BUTTON_LEFT: mvMButtonArray[eMButton_Left] = bButtonIsDown;break;
-					case SDL_BUTTON_MIDDLE: mvMButtonArray[eMButton_Middle] = bButtonIsDown;break;
-					case SDL_BUTTON_RIGHT: mvMButtonArray[eMButton_Right] = bButtonIsDown;break;
-					case SDL_BUTTON_WHEELUP: 
-						mvMButtonArray[eMButton_WheelUp] = bButtonIsDown;
-						if(bButtonIsDown) mbWheelUpMoved = true;
-						break;
-					case SDL_BUTTON_WHEELDOWN: 
-						mvMButtonArray[eMButton_WheelDown] = bButtonIsDown;
-						if(bButtonIsDown) mbWheelDownMoved = true;
-						break;
+					int x, y;
+
+					SDL_GetMouseState(&x, &y);
+					mvMouseAbsPos.x = (((float)x) * vVirtualSize.x) / vScreenSize.x;
+					mvMouseAbsPos.y = (((float)y) * vVirtualSize.y) / vScreenSize.y;
+
+					SDL_GetRelativeMouseState(&x, &y);
+					mvMouseRelPos = cVector2f((float)x,(float)y);
+					mvMouseRelPos = (mvMouseRelPos/vScreenSize)*vVirtualSize;
+					
+					mXAxis.TriggerDistance(pEvent->motion.x);
+					mYAxis.TriggerDistance(pEvent->motion.y);
 				}
+				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				mouseDown = true;
+				// Fall through
+			case SDL_MOUSEBUTTONUP:
+				{
+					int btn = pEvent->button.button-1;
+					int bit = 1 << btn;
+
+					if(((mButtonCache & bit) == 0) == mouseDown) // ARGH!
+					{
+						if(mouseDown)
+							mButtonCache |= bit;
+						else
+							mButtonCache &= ~bit;
+
+						TriggerButton(btn, mouseDown);
+					}
+				}
+				break;
 			}
 		}
-
-		if(mbWheelDownMoved)	mvMButtonArray[eMButton_WheelDown] = true;
-		else					mvMButtonArray[eMButton_WheelDown] = false;
-		if(mbWheelUpMoved)		mvMButtonArray[eMButton_WheelUp] = true;
-		else					mvMButtonArray[eMButton_WheelUp] = false;
-		
-		int lX,lY; 
-		SDL_GetRelativeMouseState(&lX, &lY);
-
-		mvMouseRelPos = cVector2f((float)lX,(float)lY);
-		mvMouseRelPos = (mvMouseRelPos/vScreenSize)*vVirtualSize;
 	}
 	
 	//-----------------------------------------------------------------------
 	
-	bool cMouseSDL::ButtonIsDown(eMButton mButton)
+	bool cMouseSDL::ButtonIsDown(int mButton)
 	{
-		return mvMButtonArray[mButton];
+		return (mButtonCache & (1 << mButton)) != 0;
 	}
 
 	//-----------------------------------------------------------------------

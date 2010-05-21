@@ -22,12 +22,14 @@
 #include "system/SystemTypes.h"
 #include "input/InputTypes.h"
 
-namespace hpl {
-	
+namespace hpl
+{	
+	class cAction;
+	class iInputControl;
 	class iInputDevice
 	{
 	public:
-		iInputDevice(tString asName,eInputDeviceType aType);
+		iInputDevice(tString asName);
 		virtual ~iInputDevice(){}
 			
 		/**
@@ -35,17 +37,18 @@ namespace hpl {
 		 * \return name of the device
 		 */
 		tString GetName();
-		
-		/**
-		 *
-		 * \return type of device.
-		 */
-		eInputDeviceType GetType();
 	    
 		/**
 		 * Update the device, called by cInput
 		 */
 		virtual void Update()=0;
+
+		virtual size_t ChildCount()=0;
+		virtual iInputControl *GetChild(size_t)=0;
+		virtual iInputControl *FindControl(tString _name);
+
+		virtual bool IsActive();
+		virtual bool AssignControl(cAction *_action);
 
 	private:
 		tString msName;
@@ -53,4 +56,5 @@ namespace hpl {
 	};
 
 };
+
 #endif // HPL_INPUTDEVICE_H

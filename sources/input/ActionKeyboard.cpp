@@ -29,7 +29,7 @@ namespace hpl
 
 	//-----------------------------------------------------------------------
 	
-	cActionKeyboard::cActionKeyboard(tString asName,cInput *apInput, int aKey) : iAction(asName)
+	cActionKeyboard::cActionKeyboard(tString asName,cInput *apInput, int aKey) : cAction(asName)
 	{
 		// Split key and modifier
 		mKey = (eKey)(aKey & eKey_MASK);

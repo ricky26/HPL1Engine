@@ -21,16 +21,35 @@
 
 #include "input/InputTypes.h"
 #include "input/InputDevice.h"
+#include "input/InputControl.h"
 
 namespace hpl {
 
-	//------------------------------
+	class iKeyboard;
+	class cKeyboardButton: public iInputControl
+	{
+	public:
+		friend class iKeyboard;
 
+		cKeyboardButton(iKeyboard *_ms, eKey _btn);
+
+		virtual tString GetName();
+		virtual bool IsTriggered();
+
+	protected:
+		tString mName;
+		iKeyboard *mpParent;
+		eKey mKey;
+	};
+
+	// TODO: Fix modifiers! -- Ricky26
 	class iKeyboard : public iInputDevice
 	{
 	public:
+		typedef std::vector<cKeyboardButton*> tKeyboardButtonList;
+
 		iKeyboard(tString asName);
-		virtual ~iKeyboard(){}
+		virtual ~iKeyboard();
 		
 		/**
 		 * 
@@ -38,32 +57,40 @@ namespace hpl {
 		 * \return true if pressed else false 
 		 */
 		virtual bool KeyIsDown(eKey aKey)=0;
+
 		/**
 		 * Can be checked many times to see all key presses
 		 * \return key that is currently pressed. eKey_NONE is no key. 
 		 */
 		virtual cKeyPress GetKey()=0;
+
 		/**
 		 *
 		 * \return If ANY key is pressed
 		 */
 		virtual bool KeyIsPressed()=0;
+
 		/**
 		 * \return The current modifiers.
 		 */
 		virtual eKeyModifier GetModifier()=0;
+
 		/**
-		 * \todo Implement!
-		 * \param eKey The key to change to string.
-		 * \return The name of the key as a string. 
+		 * \param eKey The eKey who's name we want.
+		 * \return The name of the eKey.
 		 */
-		virtual tString KeyToString(eKey)=0;
-		/**
-		 * \todo Implement!
-		 * \param tString NAme of the key
-		 * \return enum of the key.
-		 */
-		virtual eKey StringToKey(tString)=0;
+		static tString KeyName(eKey);
+
+		virtual size_t ChildCount();
+		virtual iInputControl *GetChild(size_t);
+		
+		cKeyboardButton *GetButton(eKey key);
+
+	protected:
+		void TriggerKey(eKey _key, bool _val);
+
+
+		tKeyboardButtonList mButtons;
 	};
 
 };

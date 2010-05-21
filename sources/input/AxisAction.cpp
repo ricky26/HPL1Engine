@@ -16,37 +16,39 @@
  * You should have received a copy of the GNU General Public License
  * along with HPL1 Engine.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef HPL_ACTIONKEYBOARD_H
-#define HPL_ACTIONKEYBOARD_H
 
+#include "input/AxisAction.h"
+#include "input/InputAxis.h"
 
-#include "input/InputTypes.h"
-#include "input/Action.h"
-
-namespace hpl {
-	
-	class cInput;
-
-	class cActionKeyboard : public cAction
+namespace hpl
+{
+	cAxisAction::cAxisAction(tString _name, cActionGroup *_grp): cAction(_name, _grp)
 	{
-	public:
-		cActionKeyboard(tString asName,cInput* apInput, int aKey);
+		mfTriggeredAmount = 0;
+	}
 
-		bool IsTriggerd();
-		float GetValue();
+	cAxisAction::~cAxisAction()
+	{
+	}
 
-		tString GetInputName();
+	float cAxisAction::TriggeredAmount()
+	{
+		return mfTriggeredAmount;
+	}
 
-		tString GetInputType(){return "Keyboard";}
+	void cAxisAction::TriggerAmount(float _amt)
+	{
+		if(GetInverted())
+			_amt = -_amt;
 
-		eKey GetKey(){ return mKey;}
-		eKeyModifier GetModifier(){ return mMod;}
+		mfTriggeredAmount = _amt;
+	}
 
-	private:
-		eKey mKey;
-		eKeyModifier mMod;
-		cInput *mpInput;
-	};
+	bool cAxisAction::AddControl(iInputControl *_ctrl)
+	{
+		if(dynamic_cast<iInputAxis*>(_ctrl) == NULL)
+			return false;
 
+		return cAction::AddControl(_ctrl);
+	}
 };
-#endif // HPL_ACTIONKEYBOARD_H

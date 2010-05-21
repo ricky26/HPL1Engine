@@ -17,6 +17,7 @@
  * along with HPL1 Engine.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "input/InputDevice.h"
+#include "input/InputControl.h"
 
 namespace hpl
 {
@@ -26,8 +27,7 @@ namespace hpl
 
 	//-----------------------------------------------------------------------
 
-	iInputDevice::iInputDevice(tString asName,eInputDeviceType aType) 
-	: msName(asName), mType(aType)
+	iInputDevice::iInputDevice(tString asName): msName(asName)
 	{
 
 	}
@@ -46,9 +46,33 @@ namespace hpl
 
 	//-----------------------------------------------------------------------
 
-	eInputDeviceType iInputDevice::GetType(){
-		return mType;
+	bool iInputDevice::IsActive()
+	{
+		size_t count = ChildCount();
+		for(size_t i = 0; i < count; i++)
+		{
+			if(GetChild(i)->IsTriggered())
+				return true;
+		}
+
+		return false;
+	}
+
+	bool iInputDevice::AssignControl(cAction *_action)
+	{
+		return false;
 	}
 	
-	//-----------------------------------------------------------------------
+	iInputControl *iInputDevice::FindControl(tString _name)
+	{
+		size_t count = ChildCount();
+		for(size_t i = 0; i < count; i++)
+		{
+			iInputControl *chld = GetChild(i);
+			if(chld && chld->GetName().compare(_name) == 0)
+				return chld;
+		}
+		
+		return NULL;
+	}
 }

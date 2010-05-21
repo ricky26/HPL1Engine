@@ -47,7 +47,7 @@ namespace hpl {
 
 	cSDLGameSetup::cSDLGameSetup()
 	{
-		if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER ) < 0) {
+		if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK ) < 0) {
 			FatalError("Error Initializing Display: %s",SDL_GetError()); 
 			exit(1);
 		}

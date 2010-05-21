@@ -16,45 +16,38 @@
  * You should have received a copy of the GNU General Public License
  * along with HPL1 Engine.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef HPL_LOWLEVELINPUT_H
-#define HPL_LOWLEVELINPUT_H
 
-namespace hpl {
+#ifndef  HPL_INPUT_MOVEMENT_H
+#define  HPL_INPUT_MOVEMENT_H
 
-	class iMouse;
-	class iKeyboard;
-	class iInputDevice;
+#include "InputControl.h"
 
-	class iLowLevelInput
+/**
+ * Defines an axis of an input device.
+ *
+ * @author ricky26
+ */
+
+namespace hpl
+{
+	/**
+	 * An interface for a movement input (for example, mouse movement) along one axis.
+	 *
+	 * @author ricky26
+	 */
+	class iInputMovement: public iInputControl
 	{
 	public:
-		// Typedefs -- Ricky26
-		typedef unsigned int tCount;
+		iInputMovement(iInputDevice *_dev) : iInputControl(_dev) {}
 
-		virtual ~iLowLevelInput(){}
-		
-		/**
-		 * Lock all input to current window.
-		 * \param abX 
-		 * \return 
-		 */
-		virtual void LockInput(bool abX)=0;
-		/**
-		 * Called by cInput
-		 */
-		virtual void BeginInputUpdate()=0;
-		/**
-		 * called by cInput
-		 */
-		virtual void EndInputUpdate()=0;
+		// Methods
+		virtual bool IsTriggered();
+		virtual float TriggeredDistance()=0;
+		virtual void ResetDistance()=0;
 
-		// Renamed to make more sense -- Ricky26
-		virtual iMouse* GetMouse()=0;
-		virtual iKeyboard* GetKeyboard()=0;
-		
-		// More input devices! -- Ricky26
-		virtual tCount DeviceCount()=0;
-		virtual iInputDevice *GetDevice(tCount)=0;
+	protected:
+		virtual void TriggerDistance(float _mv);
 	};
 };
-#endif // HPL_LOWLEVELINPUT_H
+
+#endif //HPL_INPUT_MOVEMENT_H

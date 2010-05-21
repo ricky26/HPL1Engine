@@ -20,11 +20,12 @@
 
 #include "impl/MouseSDL.h"
 #include "impl/KeyboardSDL.h"
+#include "impl/JoystickSDL.h"
 
 #include "system/LowLevelSystem.h"
 
-namespace hpl {
-
+namespace hpl
+{
 	//////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTORS
 	//////////////////////////////////////////////////////////////////////////
@@ -33,14 +34,29 @@ namespace hpl {
 
 	cLowLevelInputSDL::cLowLevelInputSDL(iLowLevelGraphics *apLowLevelGraphics)
 	{
+		mDevices.reserve(defaultDeviceCapacity);
+
 		mpLowLevelGraphics = apLowLevelGraphics;
 		LockInput(true);
+
+		mpMouse = hplNew( cMouseSDL,(this,mpLowLevelGraphics));
+		mpKeyboard = hplNew( cKeyboardSDL,(this) );
+
+		mDevices.push_back(mpMouse);
+		mDevices.push_back(mpKeyboard);
+
+		int sticks = SDL_NumJoysticks();
+		for(int i = 0; i < sticks; i++)
+		{
+			mDevices.push_back(new cJoystickSDL(this, mpLowLevelGraphics, i));
+		}
 	}
 
 	//-----------------------------------------------------------------------
 
 	cLowLevelInputSDL::~cLowLevelInputSDL()
 	{
+		STLDeleteAll(mDevices);
 	}
 
 	//-----------------------------------------------------------------------
@@ -79,18 +95,30 @@ namespace hpl {
 
 	//-----------------------------------------------------------------------
 	
-	iMouse* cLowLevelInputSDL::CreateMouse()
+	iMouse* cLowLevelInputSDL::GetMouse()
 	{
-		return hplNew( cMouseSDL,(this,mpLowLevelGraphics));
+		return mpMouse;
 	}
 	
 	//-----------------------------------------------------------------------
 	
-	iKeyboard* cLowLevelInputSDL::CreateKeyboard()
+	iKeyboard* cLowLevelInputSDL::GetKeyboard()
 	{
-		return hplNew( cKeyboardSDL,(this) );
+		return mpKeyboard;
 	}
 	
 	//-----------------------------------------------------------------------
+
+	cLowLevelInputSDL::tCount cLowLevelInputSDL::DeviceCount()
+	{
+		return mDevices.size();
+	}
+	
+	//-----------------------------------------------------------------------
+	
+	iInputDevice *cLowLevelInputSDL::GetDevice(tCount _idx)
+	{
+		return mDevices[_idx];
+	}
 
 }

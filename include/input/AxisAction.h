@@ -16,45 +16,36 @@
  * You should have received a copy of the GNU General Public License
  * along with HPL1 Engine.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef HPL_LOWLEVELINPUT_H
-#define HPL_LOWLEVELINPUT_H
 
-namespace hpl {
+#ifndef HPL_AXIS_ACTION_H
+#define HPL_AXIS_ACTION_H
 
-	class iMouse;
-	class iKeyboard;
-	class iInputDevice;
+#include "input/Action.h"
 
-	class iLowLevelInput
+namespace hpl
+{
+	class cAxisAction: public cAction
 	{
 	public:
-		// Typedefs -- Ricky26
-		typedef unsigned int tCount;
+		cAxisAction(tString _name, cActionGroup *_grp=NULL);
+		virtual ~cAxisAction();
 
-		virtual ~iLowLevelInput(){}
-		
 		/**
-		 * Lock all input to current window.
-		 * \param abX 
-		 * \return 
+		 * \return the current value of the axis.
 		 */
-		virtual void LockInput(bool abX)=0;
-		/**
-		 * Called by cInput
-		 */
-		virtual void BeginInputUpdate()=0;
-		/**
-		 * called by cInput
-		 */
-		virtual void EndInputUpdate()=0;
+		float TriggeredAmount();
 
-		// Renamed to make more sense -- Ricky26
-		virtual iMouse* GetMouse()=0;
-		virtual iKeyboard* GetKeyboard()=0;
-		
-		// More input devices! -- Ricky26
-		virtual tCount DeviceCount()=0;
-		virtual iInputDevice *GetDevice(tCount)=0;
+		/**
+		 * Computationally control the action.
+		 */
+		void TriggerAmount(float _amt);
+
+	protected:
+		virtual bool AddControl(iInputControl *_ctrl);
+			
+	private:		
+		float mfTriggeredAmount;
 	};
+
 };
-#endif // HPL_LOWLEVELINPUT_H
+#endif // HPL_AXIS_ACTION_H

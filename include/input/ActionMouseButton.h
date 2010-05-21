@@ -27,7 +27,7 @@ namespace hpl {
 	
 	class cInput;
 	
-	class cActionMouseButton : public iAction
+	class cActionMouseButton : public cAction
 	{
 	public:
 		cActionMouseButton(tString asName,cInput* apInput, eMButton mButton);

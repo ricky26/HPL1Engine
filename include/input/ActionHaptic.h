@@ -28,7 +28,7 @@ namespace hpl {
 	
 	class cHaptic;
 	
-	class cActionHaptic : public iAction
+	class cActionHaptic : public cAction
 	{
 	public:
 		cActionHaptic(tString asName,cHaptic *apHaptic, int mlButton);

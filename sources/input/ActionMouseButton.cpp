@@ -28,7 +28,7 @@ namespace hpl
 
 	//-----------------------------------------------------------------------
 
-	cActionMouseButton::cActionMouseButton(tString asName,cInput *apInput, eMButton aButton) : iAction(asName)
+	cActionMouseButton::cActionMouseButton(tString asName,cInput *apInput, eMButton aButton) : cAction(asName)
 	{
 		mButton = aButton;	
 		mpInput = apInput;

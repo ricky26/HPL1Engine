@@ -33,7 +33,7 @@ namespace hpl {
 	public:
 		cMouseSDL(cLowLevelInputSDL *apLowLevelInputSDL, iLowLevelGraphics *apLowLevelGraphics);
 
-		bool ButtonIsDown(eMButton);
+		bool ButtonIsDown(int);
 		
 		void Update();
 		
@@ -65,7 +65,7 @@ namespace hpl {
 		cVector2f mvMouseAbsPos;
 		cVector2f mvMouseRelPos;
 
-		std::vector<bool> mvMButtonArray;
+		int mButtonCache;
 
 		tVector2fList mlstMouseCoord;
 

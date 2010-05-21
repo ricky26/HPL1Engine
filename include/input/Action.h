@@ -16,41 +16,56 @@
  * You should have received a copy of the GNU General Public License
  * along with HPL1 Engine.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef HPL_ACTION_H
 #define HPL_ACTION_H
 
+#include <vector>
 #include "system/SystemTypes.h"
 
-namespace hpl {
-
-	class iAction
+namespace hpl
+{
+	class cAction;
+	class cActionGroup
 	{
 	public:
-		iAction(tString asName);
-		virtual ~iAction(){}
+		typedef std::vector<cAction*> tActionList;
+		typedef std::vector<cActionGroup*> tGroupList;
 
-		/**
-		 *
-		 * \return returns true if the action just was triggered, else false
-		 */
-		bool WasTriggerd();
-		
-		/**
-		 *
-		 * \return true if the action just became triggered, else false
-		 */
-		bool BecameTriggerd();
+		cActionGroup(tString _name, cActionGroup *_parent=NULL);
 
-		/**
-		*
-		* \return true if the action just was double triggered (double clicked), else false
-		*/
-		bool DoubleTriggerd(float afLimit);
-		
-		/**
-		 *Update the Action, called by cInput
-		 */
-		void Update(float afTimeStep);
+		tString GetName();
+
+		bool AddAction(cAction *_act);
+		void RemoveAction(cAction *_act);
+		size_t ActionCount();
+		cAction *GetAction(size_t _idx);
+		cAction *FindAction(tString _name);
+
+		bool AddGroup(cActionGroup *_grp);
+		void RemoveGroup(cActionGroup *_grp);
+		size_t GroupCount();
+		cActionGroup *GetGroup(size_t _idx);
+
+		void UnbindAll();
+
+	protected:
+		tString mName;
+		cActionGroup *mpParent;
+		tActionList mActions;
+		tGroupList mGroups;
+	};
+
+	class iInputControl;
+	class cAction
+	{
+	public:
+		typedef std::vector<iInputControl *> tControlList;
+
+		friend class iInputControl;
+
+		cAction(tString _name, cActionGroup *_grp=NULL);
+		virtual ~cAction();
 
 		/**
 		 *
@@ -58,43 +73,122 @@ namespace hpl {
 		 */
 		tString GetName();
 
-        /**
-         * Update special logic for the action. Normally empty
-         */
-        virtual void UpdateLogic(float afTimeStep);
+		/**
+		 * \return the action's group.
+		 */
+		cActionGroup *GetGroup();
 
+		/**
+		 * \return the control to which the action is currently attached.
+		 */
+		iInputControl *GetControl();
+		
+		/**
+		 * \return whether the action is inverted.
+		 */
+		bool GetInverted();
+
+		/**
+		 * Set whether the action is inverted.
+		 */
+		void SetInverted(bool _inv);
 
 		/**
 		 * Filled in by the class that inherits from Action.
 		 * \return true if the action is being triggered
 		 */
-		virtual bool IsTriggerd()=0;
+		bool IsTriggered();
 
 		/**
-		 * 
-		 * \return A value from the input, ie the relative mouse x position.
+		 * \return the number of times the action has been triggered since the last
+		 * trigger reset, or since the action was created.
 		 */
-		virtual float GetValue()=0;
+		int GetTriggerCount();
 
 		/**
-		 * The name of the input, ie for keyboard the name of the key is returned.
+		 * Reset the trigger count.
 		 */
-		virtual tString GetInputName()=0;
+		void ResetTriggerCount();
 
 		/**
-		 * The name of the input type.
+		*
+		* \return true if this is the first time this function has been called since the trigger
+		*			was fired.
+		*/
+		bool BecameTriggered();
+
+		/**
+		*
+		* \return true if this is the first time this function has been called since the trigger
+		*			stopped firing.
+		*/
+		bool WasTriggered();
+
+		/**
+		*
+		* \return true if the action just was double triggered (double clicked), else false.
+		*/
+		bool DoubleTriggered(float afLimit);
+
+		/**
+		*
+		* \return true if the action has been held for a specified interval.
+		*/
+		bool Held(float afLimit);
+
+		/**
+		 * Bind ourselves to a control.
 		 */
-		virtual tString GetInputType()=0;
+		bool Bind(iInputControl *_control);
+
+		/**
+		 * Unbind any bindings we have to a specific control.
+		 */
+		void Unbind(iInputControl *_control);
+
+		/**
+		 * Unbind any bindings we have.
+		 */
+		void Unbind();
+
+		/**
+		 * \return the number of controls we are connected to.
+		 */
+		size_t ControlCount();
+
+		/**
+		 * \return a control we are connected to.
+		 */
+		iInputControl *GetControl(size_t _idx);
+
+		/**
+		 * Computationally control the action.
+		 */
+		void Trigger();
+		
+		/**
+		 * Computationally control the action.
+		 */
+		void Trigger(bool _val);
+
+	protected:
+		virtual void Triggered(bool _val);
+		
+		virtual bool AddControl(iInputControl *_ctrl);
+		void RemoveControl(iInputControl *_ctrl);
 			
 	private:
 		tString msName;
-
-		bool mbBecameTriggerd;
-		bool mbIsTriggerd;
+		tControlList mControls;
+		cActionGroup *mpParent;
 		
-		bool mbTriggerDown;
-
-		double mfTimeCount;
+		int miTriggerCount;
+		bool mbInverted;
+		bool mbIsTriggered;
+		bool mbBecameTriggered;
+		bool mbWasTriggered;
+		float mfLastClick;
+		float mfClickGap;
 	};
 
 };
