@@ -1240,7 +1240,7 @@ namespace hpl {
 					pGeometry->mvVertexVec.resize(lSize);
 
 					tFloatVec vRawData; 
-					vRawData.reserve(lSize * 3);
+					vRawData.resize(lSize * 3); // We can't use the vector as an array unless we actually allocate the memory! -- Ricky26
 					
 					/////////////////////////////////
 					// Positions

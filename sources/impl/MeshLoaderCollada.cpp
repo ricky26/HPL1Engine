@@ -2130,7 +2130,8 @@ namespace hpl {
 			{
 				//Get number of chars in prefix.
 				int lPrefixChars =1;
-				while(	apNode->msName[lPrefixChars]!= '_' &&
+				while(lPrefixChars < apNode->msName.size() &&
+					apNode->msName[lPrefixChars]!= '_' &&
 					apNode->msName[lPrefixChars]!='\0') {
 						lPrefixChars++;
 					}
@@ -2359,7 +2360,7 @@ namespace hpl {
 
 				//Get number of digits
 				lDigits =1;
-				while(apNode->msName[lStartChar+4+lDigits] != '_' && apNode->msName[7+lDigits] != 0) lDigits++;
+				while(apNode->msName.length() > lStartChar+4+lDigits && apNode->msName[lStartChar+4+lDigits] != '_' && apNode->msName[7+lDigits] != 0) lDigits++;
 
                 sNum = cString::Sub(apNode->msName,lStartChar+4,lDigits);
 				//int lTargetSector = cString::ToInt(sNum.c_str(),-1);

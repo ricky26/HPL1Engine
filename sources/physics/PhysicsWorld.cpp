@@ -165,6 +165,7 @@ namespace hpl {
 				pBody->Destroy();
 				hplDelete(pBody);
 				mlstBodies.erase(it);
+				return; // You can't continue using broken iterators! -- Ricky26
 			}
 		}
 	}

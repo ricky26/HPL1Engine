@@ -1042,7 +1042,7 @@ namespace hpl {
 				iSerializable *pContData = (iSerializable*)pContIt->NextPtr();
 				hplDelete(pContData);
 			}
-			hplDelete(pContIt);
+			//hplDelete(pContIt);
 			pCont->Clear();
 
 			TiXmlElement *pVarElem = apElement->FirstChildElement();
