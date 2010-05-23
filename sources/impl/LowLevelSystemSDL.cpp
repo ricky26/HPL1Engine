@@ -53,7 +53,7 @@
 
 extern int hplMain(const hpl::tString &asCommandLine);
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(WIN32_CONSOLE)
 #include <windows.h>
 int WINAPI WinMain(	HINSTANCE hInstance,  HINSTANCE hPrevInstance,LPSTR	lpCmdLine, int nCmdShow)
 {

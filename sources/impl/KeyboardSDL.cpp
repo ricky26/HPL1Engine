@@ -34,7 +34,7 @@ namespace hpl {
 
 	//-----------------------------------------------------------------------
 	
-	cKeyboardSDL::cKeyboardSDL(cLowLevelInputSDL *apLowLevelInputSDL) : iKeyboard("SDL Portable Keyboard")
+	cKeyboardSDL::cKeyboardSDL(cLowLevelInputSDL *apLowLevelInputSDL) : iKeyboard("Keyboard")
 	{
 		mpLowLevelInputSDL = apLowLevelInputSDL;
 
@@ -58,28 +58,32 @@ namespace hpl {
         for(; it != mpLowLevelInputSDL->mlstEvents.end(); ++it)
 		{
 			SDL_Event *pEvent = &(*it);
-			
-			if(pEvent->type != SDL_KEYDOWN && pEvent->type != SDL_KEYUP)
+			bool keyDown = false;
+			switch(pEvent->type)
 			{
-				continue;
-			}
+			case SDL_KEYDOWN:
+				keyDown = true;
+				// Fall Through
+			case SDL_KEYUP:
+				{
+					eKey key = SDLToKey(pEvent->key.keysym.sym);
+					if(key != eKey_NONE && mvKeyArray[key] != keyDown)
+					{
+						mvKeyArray[key] = keyDown;
+						int sdl_mod = pEvent->key.keysym.mod;
+						mModifier = eKeyModifier_NONE;
 
-			eKey key = SDLToKey(pEvent->key.keysym.sym);
-			mvKeyArray[key] = pEvent->type == SDL_KEYDOWN?true:false;
+						if(sdl_mod & KMOD_CTRL)		mModifier |= eKeyModifier_CTRL;
+						if(sdl_mod & KMOD_SHIFT)	mModifier |= eKeyModifier_SHIFT;
+						if(sdl_mod & KMOD_ALT)		mModifier |= eKeyModifier_ALT;
+						if(sdl_mod & KMOD_META)		mModifier |= eKeyModifier_META;
 
-			if(pEvent->type == SDL_KEYDOWN)
-			{
-				int sdl_mod = pEvent->key.keysym.mod;
-				mModifier = eKeyModifier_NONE;
+						TriggerKey(key, keyDown);
 
-				if(sdl_mod & KMOD_CTRL)		mModifier |= eKeyModifier_CTRL;
-				if(sdl_mod & KMOD_SHIFT)	mModifier |= eKeyModifier_SHIFT;
-				if(sdl_mod & KMOD_ALT)		mModifier |= eKeyModifier_ALT;
-				if(sdl_mod & KMOD_META)		mModifier |= eKeyModifier_META;
+						mlstKeysPressed.push_back(cKeyPress(key, pEvent->key.keysym.unicode, mModifier));
 
-				mlstKeysPressed.push_back(cKeyPress(key,pEvent->key.keysym.unicode,mModifier));
-				
-				//if(mlstKeysPressed.size()>MAX_KEY_PRESSES) mlstKeysPressed.pop_front();
+					}
+				}
 			}
 		}
 	}
@@ -115,20 +119,6 @@ namespace hpl {
 		return mModifier;
 	}
 
-	//-----------------------------------------------------------------------
-
-	tString cKeyboardSDL::KeyToString(eKey)
-	{
-		return "None";
-	}
-
-	//-----------------------------------------------------------------------
-
-	eKey cKeyboardSDL::StringToKey(tString)
-	{
-		return eKey_NONE;
-	}
-	
 	//-----------------------------------------------------------------------
 
 	/////////////////////////////////////////////////////////////////////////
