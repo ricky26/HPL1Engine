@@ -19,6 +19,7 @@
 
 #include "input/InputAxis.h"
 #include "input/AxisAction.h"
+#include "math/Math.h"
 
 namespace hpl
 {

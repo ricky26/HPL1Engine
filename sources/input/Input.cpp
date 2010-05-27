@@ -19,6 +19,7 @@
 #include "input/Input.h"
 #include "input/InputAxis.h"
 #include "system/LowLevelSystem.h"
+#include "system/String.h"
 #include "input/Mouse.h"
 #include "input/Keyboard.h"
 #include "input/LowLevelInput.h"
